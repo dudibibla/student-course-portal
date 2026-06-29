@@ -11,9 +11,15 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
 
     // Get chat messages for a specific course (course group chat)
     List<ChatMessage> findByCourseIdOrderByTimestampAsc(Long courseId);
+    
+    List<ChatMessage> findByCourseOrderByTimestampAsc(com.studentportal.portal.entity.Course course);
 
     // Get private messages sent to a specific user
     List<ChatMessage> findByReceiverIdOrderByTimestampAsc(Long receiverId);
     
-    // Get all private messages between two users (we can add a custom query later if needed)
+    // Get all private messages between two users
+    List<ChatMessage> findBySenderAndReceiverOrReceiverAndSenderOrderByTimestampAsc(
+            com.studentportal.portal.entity.User sender1, com.studentportal.portal.entity.User receiver1,
+            com.studentportal.portal.entity.User receiver2, com.studentportal.portal.entity.User sender2
+    );
 }
