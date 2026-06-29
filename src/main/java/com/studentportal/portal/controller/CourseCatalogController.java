@@ -64,11 +64,13 @@ public class CourseCatalogController {
     }
 
     @PostMapping("/cart/checkout")
-    public String checkout(HttpSession session, Model model) {
+    public String checkout(HttpSession session, Model model, @org.springframework.security.core.annotation.AuthenticationPrincipal com.studentportal.portal.security.CustomUserDetails userDetails) {
         List<Long> cart = (List<Long>) session.getAttribute("courseCart");
         
-        // TODO: Replace this with the actual logged-in user when Spring Security is active
-        Long currentUserId = 1L; 
+        if (userDetails == null) {
+            return "redirect:/login";
+        }
+        Long currentUserId = userDetails.getId(); 
 
         if (cart == null || cart.isEmpty()) {
             return "redirect:/cart?error=empty";

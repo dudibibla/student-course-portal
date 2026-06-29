@@ -25,9 +25,11 @@ public class DashboardController {
     }
 
     @GetMapping("/dashboard")
-    public String dashboard(Model model) {
-        // TODO: Replace with Spring Security logged in user
-        Long currentUserId = 1L; 
+    public String dashboard(Model model, @org.springframework.security.core.annotation.AuthenticationPrincipal com.studentportal.portal.security.CustomUserDetails userDetails) {
+        if (userDetails == null) {
+            return "redirect:/login";
+        }
+        Long currentUserId = userDetails.getId(); 
         
         User user = userService.findById(currentUserId).orElse(null);
         if (user == null) {
@@ -49,9 +51,13 @@ public class DashboardController {
     @PostMapping("/dashboard/course/add")
     public String addCourse(@RequestParam String name, 
                             @RequestParam String description, 
-                            @RequestParam int maxStudents) {
-        // TODO: Get real teacher
-        Long currentUserId = 1L; 
+                            @RequestParam int maxStudents,
+                            @org.springframework.security.core.annotation.AuthenticationPrincipal com.studentportal.portal.security.CustomUserDetails userDetails) {
+        
+        if (userDetails == null) {
+            return "redirect:/login";
+        }
+        Long currentUserId = userDetails.getId(); 
         User teacher = userService.findById(currentUserId).orElseThrow();
         
         if (teacher.getRole() != Role.TEACHER && teacher.getRole() != Role.ADMIN) {

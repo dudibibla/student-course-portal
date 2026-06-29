@@ -27,10 +27,13 @@ public class ChatController {
     @PostMapping("/chat/send")
     public String sendMessage(@RequestParam String content,
                               @RequestParam(required = false) Long courseId,
-                              @RequestParam(required = false) Long receiverId) {
+                              @RequestParam(required = false) Long receiverId,
+                              @org.springframework.security.core.annotation.AuthenticationPrincipal com.studentportal.portal.security.CustomUserDetails userDetails) {
         
-        // TODO: Replace with Spring Security logged in user
-        Long currentUserId = 1L; 
+        if (userDetails == null) {
+            return "redirect:/login";
+        }
+        Long currentUserId = userDetails.getId(); 
         User sender = userService.findById(currentUserId).orElseThrow();
 
         Course course = null;
