@@ -53,7 +53,7 @@
                     <div th:each="msg : ${messages}" th:classappend="${msg.sender.id == user.id} ? 'message mine' : 'message other'">
                         <strong th:text="${msg.sender.name} + ': '">Sender: </strong>
                         <span th:text="${msg.content}">Message Content</span>
-                        <div style="font-size: 0.75rem; text-align: right; margin-top: 0.2rem; opacity: 0.7;" th:text="${#temporals.format(msg.timestamp, 'dd MMM HH:mm')}">Time</div>
+                        <div style="font-size: 0.75rem; text-align: right; margin-top: 0.2rem; opacity: 0.7;" th:text="${msg.timestamp}">Time</div>
                     </div>
                 </div>
                 <div class="chat-input">

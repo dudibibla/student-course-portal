@@ -76,7 +76,7 @@
                 <div class="card" th:each="review : ${reviews}" style="padding: 1.5rem;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                         <strong th:text="${review.student.name}" style="color: var(--primary-color);">Student Name</strong>
-                        <small th:text="${#temporals.format(review.timestamp, 'dd MMM yyyy, HH:mm')}" style="color: var(--text-muted);">Date</small>
+                        <small th:text="${review.timestamp}" style="color: var(--text-muted);">Date</small>
                     </div>
                     <p th:text="${review.content}" style="margin: 0;"></p>
                 </div>
@@ -93,7 +93,7 @@
                         <div th:each="msg : ${messages}" th:classappend="${user != null && msg.sender.id == user.id} ? 'message mine' : 'message other'">
                             <strong th:text="${msg.sender.name} + ': '">Sender: </strong>
                             <span th:text="${msg.content}">Message Content</span>
-                            <div style="font-size: 0.75rem; text-align: right; margin-top: 0.2rem; opacity: 0.7;" th:text="${#temporals.format(msg.timestamp, 'dd MMM HH:mm')}">Time</div>
+                            <div style="font-size: 0.75rem; text-align: right; margin-top: 0.2rem; opacity: 0.7;" th:text="${msg.timestamp}">Time</div>
                         </div>
                     </div>
                     <div class="chat-input" th:if="${user != null}">
