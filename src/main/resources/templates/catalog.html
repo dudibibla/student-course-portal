@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Catalog - Student Portal</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">StudentPortal</a>
+        <div class="navbar-nav">
+            <a href="/catalog" class="nav-link">Catalog</a>
+            <a href="/cart" class="nav-link">Cart (<span th:text="${cartSize ?: 0}"></span>)</a>
+            <a href="/dashboard" class="nav-link">Dashboard</a>
+            <button id="theme-toggle" class="theme-toggle">🌙</button>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-danger" style="padding: 0.5rem 1rem;">Logout</button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h1 style="color: var(--primary-color);">Course Catalog</h1>
+            <a href="/cart" class="btn btn-success">View Cart</a>
+        </div>
+        
+        <div th:if="${param.added}" class="alert alert-success">
+            Course successfully added to your cart!
+        </div>
+        
+        <div class="course-grid">
+            <div class="card course-card" th:each="course : ${courses}">
+                <div>
+                    <h3 class="course-title" th:text="${course.name}">Course Name</h3>
+                    <p th:text="${course.description}">Description</p>
+                    <p><strong>Capacity:</strong> <span th:text="${course.capacity}"></span></p>
+                    <p><strong>Teacher:</strong> <span th:text="${course.teacher.name}"></span></p>
+                </div>
+                
+                <form th:action="@{/cart/add}" method="post" class="mt-2">
+                    <input type="hidden" name="courseId" th:value="${course.id}">
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Add to Cart</button>
+                </form>
+            </div>
+        </div>
+        
+        <div th:if="${courses.empty}" class="alert alert-danger mt-2">
+            No courses available at the moment.
+        </div>
+    </div>
+
+    <script th:src="@{/js/theme.js}"></script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Portal - Home</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">StudentPortal</a>
+        <div class="navbar-nav">
+            <a href="/login" class="nav-link">Login</a>
+            <a href="/register" class="nav-link">Register</a>
+            <button id="theme-toggle" class="theme-toggle">🌙</button>
+        </div>
+    </nav>
+
+    <div class="container text-center" style="margin-top: 10vh;">
+        <h1 style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;">Welcome to the Student Portal</h1>
+        <p style="font-size: 1.2rem; max-width: 600px; margin: 0 auto 2rem auto; color: var(--text-color);">
+            Your one-stop platform for course registration and seamless communication with teachers and peers. 
+            Join our community to manage your academic journey efficiently.
+        </p>
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <a href="/register" class="btn btn-primary" style="font-size: 1.1rem; padding: 1rem 2rem;">Get Started</a>
+            <a href="/login" class="btn btn-primary" style="background-color: var(--secondary-color); color: var(--text-color); font-size: 1.1rem; padding: 1rem 2rem;">Login</a>
+        </div>
+    </div>
+
+    <script th:src="@{/js/theme.js}"></script>
+</body>
+</html>
