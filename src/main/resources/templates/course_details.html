@@ -90,7 +90,7 @@
                 
                 <div class="chat-container" style="flex-grow: 1; height: auto;">
                     <div class="chat-messages" id="chat-messages">
-                        <div th:each="msg : ${messages}" th:classappend="${user != null && msg.sender.id == user.id} ? 'message mine' : 'message other'">
+                        <div th:each="msg : ${messages}" th:classappend="${user != null && msg.sender.id == user.id ? 'message mine' : 'message other'}">
                             <strong th:text="${msg.sender.name} + ': '">Sender: </strong>
                             <span th:text="${msg.content}">Message Content</span>
                             <div style="font-size: 0.75rem; text-align: right; margin-top: 0.2rem; opacity: 0.7;" th:text="${msg.timestamp}">Time</div>

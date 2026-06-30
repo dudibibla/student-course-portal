@@ -50,7 +50,7 @@
             <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: -0.5rem;">For course-specific questions, visit the specific course page.</p>
             <div class="chat-container">
                 <div class="chat-messages" id="chat-messages">
-                    <div th:each="msg : ${messages}" th:classappend="${msg.sender.id == user.id} ? 'message mine' : 'message other'">
+                    <div th:each="msg : ${messages}" th:classappend="${msg.sender.id == user.id ? 'message mine' : 'message other'}">
                         <strong th:text="${msg.sender.name} + ': '">Sender: </strong>
                         <span th:text="${msg.content}">Message Content</span>
                         <div style="font-size: 0.75rem; text-align: right; margin-top: 0.2rem; opacity: 0.7;" th:text="${msg.timestamp}">Time</div>
