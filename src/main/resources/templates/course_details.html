@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${course.name} + ' - Details'">Course Details</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">StudentPortal</a>
+        <div class="navbar-nav">
+            <a href="/courses" class="nav-link">Catalog</a>
+            <a href="/cart" class="nav-link">Cart (<span th:text="${cartSize ?: 0}"></span>)</a>
+            <a href="/dashboard" class="nav-link">Dashboard</a>
+            <button id="theme-toggle" class="theme-toggle">🌙</button>
+            <form th:action="@{/logout}" method="post" style="display:inline;">
+                <button type="submit" class="btn btn-danger" style="padding: 0.5rem 1rem;">Logout</button>
+            </form>
+        </div>
+    </nav>
+
+    <div class="container" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+        
+        <!-- Left Column: Course Info and Reviews -->
+        <div>
+            <a href="/courses" style="color: var(--primary-color); text-decoration: none; margin-bottom: 1rem; display: inline-block;">&larr; Back to Catalog</a>
+            
+            <div th:if="${param.reviewAdded}" class="alert alert-success">
+                Review added successfully!
+            </div>
+            
+            <div class="card mb-4">
+                <h1 th:text="${course.name}" style="color: var(--primary-color);">Course Name</h1>
+                <p th:text="${course.description}" style="font-size: 1.1rem; color: var(--text-muted);"></p>
+                
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 1.5rem 0;">
+                
+                <div style="display: flex; gap: 2rem; margin-bottom: 1.5rem;">
+                    <div>
+                        <strong style="color: var(--text-color);">Teacher:</strong>
+                        <div th:text="${course.teacher.name}">Teacher Name</div>
+                    </div>
+                    <div>
+                        <strong style="color: var(--text-color);">Available Spots:</strong>
+                        <div><span th:text="${availableSpots}"></span> / <span th:text="${course.maxStudents}"></span></div>
+                    </div>
+                </div>
+
+                <form th:action="@{/cart/add}" method="post">
+                    <input type="hidden" name="courseId" th:value="${course.id}">
+                    <button type="submit" class="btn btn-success" th:disabled="${availableSpots <= 0}">
+                        <span th:text="${availableSpots > 0 ? 'Add to Cart' : 'Course Full'}"></span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Reviews Section -->
+            <h2 style="color: var(--secondary-color); margin-bottom: 1rem;">Student Reviews</h2>
+            
+            <div class="card mb-4" style="background-color: var(--bg-color);">
+                <h4>Write a Review</h4>
+                <form th:action="@{/courses/{id}/review(id=${course.id})}" method="post">
+                    <div class="form-group">
+                        <textarea name="content" class="form-control" rows="3" placeholder="What did you think of this course?..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Post Review</button>
+                </form>
+            </div>
+
+            <div th:if="${reviews.empty}">
+                <p>No reviews yet. Be the first to review this course!</p>
+            </div>
+            
+            <div th:if="${!reviews.empty}" style="display: flex; flex-direction: column; gap: 1rem;">
+                <div class="card" th:each="review : ${reviews}" style="padding: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <strong th:text="${review.student.name}" style="color: var(--primary-color);">Student Name</strong>
+                        <small th:text="${#temporals.format(review.timestamp, 'dd MMM yyyy, HH:mm')}" style="color: var(--text-muted);">Date</small>
+                    </div>
+                    <p th:text="${review.content}" style="margin: 0;"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Sidebar (Future home for Course Chat) -->
+        <div>
+            <div class="card">
+                <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Course Chat</h3>
+                <p style="color: var(--text-muted);">The per-course chat feature will be available here soon! For now, use the global chat on your dashboard.</p>
+            </div>
+        </div>
+        
+    </div>
+
+    <script th:src="@{/js/theme.js}"></script>
+</body>
+</html>

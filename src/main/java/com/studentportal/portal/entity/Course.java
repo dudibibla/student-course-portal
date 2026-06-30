@@ -28,6 +28,9 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RegistrationItem> registrationItems = new ArrayList<>();
 
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CourseReview> reviews = new ArrayList<>();
+
     // Constructors
     public Course() {}
 
@@ -56,4 +59,7 @@ public class Course {
 
     public List<RegistrationItem> getRegistrationItems() { return registrationItems; }
     public void setRegistrationItems(List<RegistrationItem> registrationItems) { this.registrationItems = registrationItems; }
+
+    public List<CourseReview> getReviews() { return reviews; }
+    public void setReviews(List<CourseReview> reviews) { this.reviews = reviews; }
 }

@@ -39,10 +39,13 @@
                     <p><strong>Teacher:</strong> <span th:text="${course.teacher.name}"></span></p>
                 </div>
                 
-                <form th:action="@{/cart/add}" method="post" class="mt-2">
-                    <input type="hidden" name="courseId" th:value="${course.id}">
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">Add to Cart</button>
-                </form>
+                <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                    <a th:href="@{/courses/{id}(id=${course.id})}" class="btn" style="flex: 1; background-color: rgba(148, 163, 184, 0.2); color: var(--text-color);">View Details</a>
+                    <form th:action="@{/cart/add}" method="post" style="flex: 1; margin: 0;">
+                        <input type="hidden" name="courseId" th:value="${course.id}">
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Add to Cart</button>
+                    </form>
+                </div>
             </div>
         </div>
         
