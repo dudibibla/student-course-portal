@@ -39,7 +39,7 @@ public class ChatService {
 
     @Transactional(readOnly = true)
     public List<ChatMessage> getGlobalMessages() {
-        return chatMessageRepository.findAllByOrderByTimestampAsc();
+        return chatMessageRepository.findByCourseIsNullAndReceiverIsNullOrderByTimestampAsc();
     }
 
     @Transactional(readOnly = true)

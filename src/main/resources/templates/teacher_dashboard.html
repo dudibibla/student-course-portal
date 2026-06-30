@@ -54,6 +54,7 @@
                                 <th style="padding: 0.5rem; text-align: left;">Course Name</th>
                                 <th style="padding: 0.5rem; text-align: left;">Teacher</th>
                                 <th style="padding: 0.5rem; text-align: left;">Capacity</th>
+                                <th style="padding: 0.5rem; text-align: left;">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -61,6 +62,9 @@
                                 <td style="padding: 0.5rem;" th:text="${course.name}">Course Name</td>
                                 <td style="padding: 0.5rem;" th:text="${course.teacher.name}">Teacher</td>
                                 <td style="padding: 0.5rem;" th:text="${course.maxStudents}">Capacity</td>
+                                <td style="padding: 0.5rem;">
+                                    <a th:href="@{/courses/{id}(id=${course.id})}" class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Go to Room</a>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -86,13 +90,14 @@
 
         <!-- Chat Section -->
         <div>
-            <h2 style="color: var(--secondary-color);">Community Chat</h2>
+            <h2 style="color: var(--secondary-color);">General Consultation</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: -0.5rem;">For course-specific questions, visit the specific course page.</p>
             <div class="chat-container">
                 <div class="chat-messages" id="chat-messages">
                     <div th:each="msg : ${messages}" th:classappend="${msg.sender.id == user.id} ? 'message mine' : 'message other'">
                         <strong th:text="${msg.sender.name} + ': '">Sender: </strong>
                         <span th:text="${msg.content}">Message Content</span>
-                        <div style="font-size: 0.75rem; text-align: right; margin-top: 0.2rem;" th:text="${msg.timestamp}">Time</div>
+                        <div style="font-size: 0.75rem; text-align: right; margin-top: 0.2rem; opacity: 0.7;" th:text="${#temporals.format(msg.timestamp, 'dd MMM HH:mm')}">Time</div>
                     </div>
                 </div>
                 <div class="chat-input">

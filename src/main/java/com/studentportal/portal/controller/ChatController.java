@@ -48,6 +48,9 @@ public class ChatController {
 
         chatService.sendMessage(sender, receiver, course, content);
 
-        return "redirect:/dashboard"; // Realistically, redirect back to the specific chat view or anchor
+        if (courseId != null) {
+            return "redirect:/courses/" + courseId;
+        }
+        return "redirect:/dashboard";
     }
 }

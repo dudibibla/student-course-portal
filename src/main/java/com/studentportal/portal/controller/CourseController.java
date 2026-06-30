@@ -21,16 +21,19 @@ public class CourseController {
     private final CourseService courseService;
     private final CourseReviewService courseReviewService;
     private final UserService userService;
+    private final com.studentportal.portal.service.ChatService chatService;
 
     @Autowired
-    public CourseController(CourseService courseService, CourseReviewService courseReviewService, UserService userService) {
+    public CourseController(CourseService courseService, CourseReviewService courseReviewService, UserService userService, com.studentportal.portal.service.ChatService chatService) {
         this.courseService = courseService;
         this.courseReviewService = courseReviewService;
         this.userService = userService;
+        this.chatService = chatService;
     }
 
     @GetMapping("/courses/{id}")
-    public String viewCourseDetails(@PathVariable Long id, Model model) {
+    public String viewCourseDetails(@PathVariable Long id, Model model,
+                                    @org.springframework.security.core.annotation.AuthenticationPrincipal com.studentportal.portal.security.CustomUserDetails userDetails) {
         Optional<Course> courseOpt = courseService.getCourseById(id);
         if (courseOpt.isEmpty()) {
             return "redirect:/courses?error=notfound";
@@ -40,6 +43,11 @@ public class CourseController {
         model.addAttribute("course", course);
         model.addAttribute("reviews", courseReviewService.getReviewsForCourse(id));
         model.addAttribute("availableSpots", courseService.getAvailableSpots(id));
+        model.addAttribute("messages", chatService.getCourseMessages(course));
+
+        if (userDetails != null) {
+            userService.findById(userDetails.getId()).ifPresent(user -> model.addAttribute("user", user));
+        }
         
         return "course_details";
     }

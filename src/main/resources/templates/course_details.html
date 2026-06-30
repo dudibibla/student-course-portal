@@ -83,16 +83,57 @@
             </div>
         </div>
 
-        <!-- Right Column: Sidebar (Future home for Course Chat) -->
+        <!-- Right Column: Sidebar (Course Chat) -->
         <div>
-            <div class="card">
-                <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Course Chat</h3>
-                <p style="color: var(--text-muted);">The per-course chat feature will be available here soon! For now, use the global chat on your dashboard.</p>
+            <div class="card" style="padding: 1.5rem; display: flex; flex-direction: column; height: 100%; min-height: 600px;">
+                <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Course Chat Room</h3>
+                
+                <div class="chat-container" style="flex-grow: 1; height: auto;">
+                    <div class="chat-messages" id="chat-messages">
+                        <div th:each="msg : ${messages}" th:classappend="${user != null && msg.sender.id == user.id} ? 'message mine' : 'message other'">
+                            <strong th:text="${msg.sender.name} + ': '">Sender: </strong>
+                            <span th:text="${msg.content}">Message Content</span>
+                            <div style="font-size: 0.75rem; text-align: right; margin-top: 0.2rem; opacity: 0.7;" th:text="${#temporals.format(msg.timestamp, 'dd MMM HH:mm')}">Time</div>
+                        </div>
+                    </div>
+                    <div class="chat-input" th:if="${user != null}">
+                        <form th:action="@{/chat/send}" method="post" style="display: flex; width: 100%; gap: 0.5rem;">
+                            <input type="hidden" name="courseId" th:value="${course.id}">
+                            <input type="text" name="content" class="form-control" placeholder="Discuss this course..." required>
+                            <button type="submit" class="btn btn-primary">Send</button>
+                        </form>
+                    </div>
+                    <div class="chat-input" th:if="${user == null}">
+                        <p style="margin: 0; text-align: center; width: 100%; color: var(--text-muted);">Please log in to chat.</p>
+                    </div>
+                </div>
             </div>
         </div>
         
     </div>
 
     <script th:src="@{/js/theme.js}"></script>
+    <script>
+        // Auto-scroll to bottom of chat
+        const chatMessages = document.getElementById('chat-messages');
+        if(chatMessages) {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Polling to refresh chat every 5 seconds
+        setInterval(() => {
+            fetch(window.location.href)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newChat = doc.getElementById('chat-messages');
+                    if(newChat && newChat.innerHTML !== chatMessages.innerHTML) {
+                        chatMessages.innerHTML = newChat.innerHTML;
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
+                    }
+                });
+        }, 5000);
+    </script>
 </body>
 </html>

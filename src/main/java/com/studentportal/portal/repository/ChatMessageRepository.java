@@ -9,8 +9,8 @@ import java.util.List;
 @Repository
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
 
-    // Get all global messages
-    List<ChatMessage> findAllByOrderByTimestampAsc();
+    // Get all global messages (no course, no receiver)
+    List<ChatMessage> findByCourseIsNullAndReceiverIsNullOrderByTimestampAsc();
 
     // Get chat messages for a specific course (course group chat)
     List<ChatMessage> findByCourseIdOrderByTimestampAsc(Long courseId);
