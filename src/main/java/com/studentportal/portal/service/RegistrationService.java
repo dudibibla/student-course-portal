@@ -64,4 +64,9 @@ public class RegistrationService {
 
         return registrationRepository.save(registration);
     }
+
+    @Transactional(readOnly = true)
+    public List<Registration> getAllRegistrations() {
+        return registrationRepository.findAll();
+    }
 }

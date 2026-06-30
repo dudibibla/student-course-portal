@@ -5,6 +5,8 @@ import com.studentportal.portal.entity.Role;
 import com.studentportal.portal.entity.User;
 import com.studentportal.portal.service.CourseService;
 import com.studentportal.portal.service.UserService;
+import com.studentportal.portal.service.ChatService;
+import com.studentportal.portal.service.RegistrationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,11 +19,15 @@ public class DashboardController {
 
     private final UserService userService;
     private final CourseService courseService;
+    private final ChatService chatService;
+    private final RegistrationService registrationService;
 
     @Autowired
-    public DashboardController(UserService userService, CourseService courseService) {
+    public DashboardController(UserService userService, CourseService courseService, ChatService chatService, RegistrationService registrationService) {
         this.userService = userService;
         this.courseService = courseService;
+        this.chatService = chatService;
+        this.registrationService = registrationService;
     }
 
     @GetMapping("/dashboard")
@@ -37,10 +43,13 @@ public class DashboardController {
         }
 
         model.addAttribute("user", user);
+        model.addAttribute("messages", chatService.getGlobalMessages());
 
         if (user.getRole() == Role.STUDENT) {
             return "student_dashboard";
         } else if (user.getRole() == Role.TEACHER || user.getRole() == Role.ADMIN) {
+            model.addAttribute("allCourses", courseService.getAllCourses());
+            model.addAttribute("allRegistrations", registrationService.getAllRegistrations());
             return "teacher_dashboard";
         }
 

@@ -10,7 +10,7 @@
     <nav class="navbar">
         <a href="/" class="navbar-brand">StudentPortal</a>
         <div class="navbar-nav">
-            <a href="/catalog" class="nav-link">Catalog</a>
+            <a href="/courses" class="nav-link">Catalog</a>
             <a href="/cart" class="nav-link">Cart</a>
             <button id="theme-toggle" class="theme-toggle">🌙</button>
             <form th:action="@{/logout}" method="post" style="display:inline;">
@@ -27,11 +27,11 @@
             
             <div class="card mt-2">
                 <h3>Your Registered Courses</h3>
-                <div th:if="${registrations.empty}">
-                    <p>You have not registered for any courses yet. Visit the <a href="/catalog" style="color: var(--primary-color);">catalog</a>.</p>
+                <div th:if="${user.registrations == null or user.registrations.empty}">
+                    <p>You have not registered for any courses yet. Visit the <a href="/courses" style="color: var(--primary-color);">catalog</a>.</p>
                 </div>
-                <div th:if="${!registrations.empty}">
-                    <div th:each="reg : ${registrations}" style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+                <div th:if="${user.registrations != null and !user.registrations.empty}">
+                    <div th:each="reg : ${user.registrations}" style="margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
                         <p><strong>Registration ID:</strong> <span th:text="${reg.id}"></span> (Date: <span th:text="${reg.registrationDate}"></span>)</p>
                         <ul>
                             <li th:each="item : ${reg.items}" th:text="${item.course.name}">Course Name</li>

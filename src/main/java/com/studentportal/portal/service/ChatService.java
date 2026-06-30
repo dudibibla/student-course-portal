@@ -38,6 +38,11 @@ public class ChatService {
     }
 
     @Transactional(readOnly = true)
+    public List<ChatMessage> getGlobalMessages() {
+        return chatMessageRepository.findAllByOrderByTimestampAsc();
+    }
+
+    @Transactional(readOnly = true)
     public List<ChatMessage> getCourseMessages(Course course) {
         return chatMessageRepository.findByCourseOrderByTimestampAsc(course);
     }

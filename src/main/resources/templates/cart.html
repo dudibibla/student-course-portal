@@ -10,8 +10,8 @@
     <nav class="navbar">
         <a href="/" class="navbar-brand">StudentPortal</a>
         <div class="navbar-nav">
-            <a href="/catalog" class="nav-link">Catalog</a>
-            <a href="/cart" class="nav-link">Cart (<span th:text="${cart.size()}"></span>)</a>
+            <a href="/courses" class="nav-link">Catalog</a>
+            <a href="/cart" class="nav-link">Cart (<span th:text="${cartCourses == null ? 0 : cartCourses.size()}"></span>)</a>
             <a href="/dashboard" class="nav-link">Dashboard</a>
             <button id="theme-toggle" class="theme-toggle">🌙</button>
             <form th:action="@{/logout}" method="post" style="display:inline;">
@@ -25,11 +25,11 @@
         
         <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
-        <div th:if="${cart.empty}" class="alert alert-danger mt-2">
-            Your cart is empty. Go to the <a href="/catalog" style="color: var(--primary-color);">catalog</a> to add courses.
+        <div th:if="${cartCourses == null or cartCourses.empty}" class="alert alert-danger mt-2">
+            Your cart is empty. Go to the <a href="/courses" style="color: var(--primary-color);">catalog</a> to add courses.
         </div>
 
-        <div th:if="${!cart.empty}">
+        <div th:if="${cartCourses != null and !cartCourses.empty}">
             <table style="width: 100%; border-collapse: collapse; margin-top: 1.5rem; background-color: var(--card-bg); border-radius: 8px; box-shadow: var(--shadow);">
                 <thead>
                     <tr style="background-color: var(--primary-color); color: white;">
@@ -39,7 +39,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="course : ${cart}" style="border-bottom: 1px solid var(--border-color);">
+                    <tr th:each="course : ${cartCourses}" style="border-bottom: 1px solid var(--border-color);">
                         <td style="padding: 1rem;" th:text="${course.name}">Course Name</td>
                         <td style="padding: 1rem;" th:text="${course.teacher.name}">Teacher</td>
                         <td style="padding: 1rem; text-align: right;">

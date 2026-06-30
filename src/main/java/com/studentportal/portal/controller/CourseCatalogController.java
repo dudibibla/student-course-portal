@@ -63,6 +63,16 @@ public class CourseCatalogController {
         return "cart";
     }
 
+    @PostMapping("/cart/remove")
+    public String removeFromCart(@RequestParam Long courseId, HttpSession session) {
+        List<Long> cart = (List<Long>) session.getAttribute("courseCart");
+        if (cart != null) {
+            cart.remove(courseId);
+            session.setAttribute("courseCart", cart);
+        }
+        return "redirect:/cart?removed=true";
+    }
+
     @PostMapping("/cart/checkout")
     public String checkout(HttpSession session, Model model, @org.springframework.security.core.annotation.AuthenticationPrincipal com.studentportal.portal.security.CustomUserDetails userDetails) {
         List<Long> cart = (List<Long>) session.getAttribute("courseCart");
