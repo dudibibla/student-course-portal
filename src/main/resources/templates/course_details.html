@@ -56,35 +56,74 @@
             </div>
 
             <!-- Reviews Section -->
-            <h2 style="color: var(--secondary-color); margin-bottom: 1rem;">Student Reviews</h2>
-            
-            <div class="card mb-4" style="background-color: var(--bg-color);">
-                <h4>Write a Review</h4>
-                <form th:action="@{/courses/{id}/review(id=${course.id})}" method="post">
-                    <div class="form-group">
-                        <textarea name="content" class="form-control" rows="3" placeholder="What did you think of this course?..." required></textarea>
+            <div th:if="${user == null or user.role.name() == 'STUDENT' or user.role.name() == 'ADMIN'}">
+                <h2 style="color: var(--secondary-color); margin-bottom: 1rem;">Student Reviews</h2>
+                
+                <div class="card mb-4" style="background-color: var(--bg-color);" th:if="${user != null and user.role.name() == 'STUDENT'}">
+                    <h4>Write a Review</h4>
+                    <form th:action="@{/courses/{id}/review(id=${course.id})}" method="post">
+                        <div class="form-group">
+                            <textarea name="content" class="form-control" rows="3" placeholder="What did you think of this course?..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Post Review</button>
+                    </form>
+                </div>
+
+                <div th:if="${reviews.empty}">
+                    <p>No reviews yet. Be the first to review this course!</p>
+                </div>
+                
+                <div th:if="${!reviews.empty}" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div class="card" th:each="review : ${reviews}" style="padding: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <strong th:text="${review.student.name}" style="color: var(--primary-color);">Student Name</strong>
+                            <small th:text="${review.timestamp}" style="color: var(--text-muted);">Date</small>
+                        </div>
+                        <p th:text="${review.content}" style="margin: 0;"></p>
                     </div>
-                    <button type="submit" class="btn btn-primary">Post Review</button>
-                </form>
+                </div>
             </div>
 
-            <div th:if="${reviews.empty}">
-                <p>No reviews yet. Be the first to review this course!</p>
-            </div>
-            
-            <div th:if="${!reviews.empty}" style="display: flex; flex-direction: column; gap: 1rem;">
-                <div class="card" th:each="review : ${reviews}" style="padding: 1.5rem;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                        <strong th:text="${review.student.name}" style="color: var(--primary-color);">Student Name</strong>
-                        <small th:text="${review.timestamp}" style="color: var(--text-muted);">Date</small>
+            <!-- Teacher / Admin Section -->
+            <div th:if="${user != null and (user.role.name() == 'ADMIN' or (user.role.name() == 'TEACHER' and course.teacher != null and course.teacher.id == user.id))}">
+                <h2 style="color: var(--secondary-color); margin-bottom: 1rem;">Course Management</h2>
+                
+                <div class="card mb-4" style="background-color: var(--bg-color);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h4 style="margin: 0;">Enrolled Students</h4>
+                        <button class="btn btn-primary" onclick="alert('Add Assignment UI coming soon!')">Add Assignment</button>
                     </div>
-                    <p th:text="${review.content}" style="margin: 0;"></p>
+                    
+                    <div th:if="${course.registrationItems.empty}">
+                        <p>No students enrolled yet.</p>
+                    </div>
+                    <table th:if="${!course.registrationItems.empty}" style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background-color: var(--primary-color); color: white;">
+                                <th style="padding: 0.5rem; text-align: left; border-bottom: 2px solid var(--border-color);">Student Name</th>
+                                <th style="padding: 0.5rem; text-align: left; border-bottom: 2px solid var(--border-color);">Registration Date</th>
+                                <th style="padding: 0.5rem; text-align: left; border-bottom: 2px solid var(--border-color);">Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="item : ${course.registrationItems}">
+                                <td style="padding: 0.5rem; border-bottom: 1px solid var(--border-color);" th:text="${item.registration.student.name}">Student</td>
+                                <td style="padding: 0.5rem; border-bottom: 1px solid var(--border-color);" th:text="${item.registration.registrationDate}">Date</td>
+                                <td style="padding: 0.5rem; border-bottom: 1px solid var(--border-color);">
+                                    <form th:action="@{/courses/{id}/grades/{itemId}(id=${course.id}, itemId=${item.id})}" method="post" style="display: flex; gap: 0.5rem; align-items: center; margin: 0;">
+                                        <input type="number" name="grade" th:value="${item.grade}" class="form-control" style="width: 80px;" min="0" max="100">
+                                        <button type="submit" class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">Save</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
         <!-- Right Column: Sidebar (Course Chat) -->
-        <div>
+        <div th:if="${user == null or user.role.name() == 'STUDENT' or user.role.name() == 'ADMIN'}">
             <div class="card" style="padding: 1.5rem; display: flex; flex-direction: column; height: 100%; min-height: 600px;">
                 <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Course Chat Room</h3>
                 
