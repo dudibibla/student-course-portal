@@ -91,4 +91,28 @@ public class CourseController {
             return "redirect:/courses/" + id + "?error=" + e.getMessage();
         }
     }
+
+    @PostMapping("/courses/{id}/assignments")
+    public String addAssignment(@PathVariable Long id,
+                                @RequestParam String title,
+                                @RequestParam String description,
+                                @RequestParam String dueDate,
+                                @org.springframework.security.core.annotation.AuthenticationPrincipal com.studentportal.portal.security.CustomUserDetails userDetails) {
+        if (userDetails == null) {
+            return "redirect:/login";
+        }
+
+        User user = userService.findById(userDetails.getId()).orElse(null);
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            java.time.LocalDate parsedDate = java.time.LocalDate.parse(dueDate);
+            courseService.addAssignment(id, title, description, parsedDate, user);
+            return "redirect:/courses/" + id + "?assignmentAdded=true";
+        } catch (Exception e) {
+            return "redirect:/courses/" + id + "?error=" + e.getMessage();
+        }
+    }
 }

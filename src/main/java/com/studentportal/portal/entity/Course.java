@@ -31,6 +31,9 @@ public class Course {
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CourseReview> reviews = new ArrayList<>();
 
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Assignment> assignments = new ArrayList<>();
+
     // Constructors
     public Course() {}
 
@@ -62,4 +65,7 @@ public class Course {
 
     public List<CourseReview> getReviews() { return reviews; }
     public void setReviews(List<CourseReview> reviews) { this.reviews = reviews; }
+
+    public List<Assignment> getAssignments() { return assignments; }
+    public void setAssignments(List<Assignment> assignments) { this.assignments = assignments; }
 }

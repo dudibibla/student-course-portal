@@ -1,8 +1,10 @@
 package com.studentportal.portal.service;
 
+import com.studentportal.portal.entity.Assignment;
 import com.studentportal.portal.entity.Course;
 import com.studentportal.portal.entity.User;
 import com.studentportal.portal.entity.RegistrationItem;
+import com.studentportal.portal.repository.AssignmentRepository;
 import com.studentportal.portal.repository.CourseRepository;
 import com.studentportal.portal.repository.RegistrationItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +19,13 @@ public class CourseService {
 
     private final CourseRepository courseRepository;
     private final RegistrationItemRepository registrationItemRepository;
+    private final AssignmentRepository assignmentRepository;
 
     @Autowired
-    public CourseService(CourseRepository courseRepository, RegistrationItemRepository registrationItemRepository) {
+    public CourseService(CourseRepository courseRepository, RegistrationItemRepository registrationItemRepository, AssignmentRepository assignmentRepository) {
         this.courseRepository = courseRepository;
         this.registrationItemRepository = registrationItemRepository;
+        this.assignmentRepository = assignmentRepository;
     }
 
     @Transactional(readOnly = true)
@@ -79,4 +83,17 @@ public class CourseService {
         registrationItemRepository.save(item);
     }
 
+    @Transactional
+    public void addAssignment(Long courseId, String title, String description, java.time.LocalDate dueDate, User user) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("Course not found"));
+        
+        if (user.getRole() != com.studentportal.portal.entity.Role.ADMIN && 
+            (course.getTeacher() == null || !course.getTeacher().getId().equals(user.getId()))) {
+            throw new IllegalStateException("Not authorized to add assignments to this course");
+        }
+        
+        Assignment assignment = new Assignment(title, description, dueDate, course);
+        assignmentRepository.save(assignment);
     }
+}
