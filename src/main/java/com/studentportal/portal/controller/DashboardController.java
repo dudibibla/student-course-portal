@@ -56,7 +56,7 @@ public class DashboardController {
         return "redirect:/";
     }
 
-    // Teacher specific action - add new course
+    // Admin specific action - add new course
     @PostMapping("/dashboard/course/add")
     public String addCourse(@RequestParam String name, 
                             @RequestParam String description, 
@@ -67,15 +67,31 @@ public class DashboardController {
             return "redirect:/login";
         }
         Long currentUserId = userDetails.getId(); 
-        User teacher = userService.findById(currentUserId).orElseThrow();
+        User admin = userService.findById(currentUserId).orElseThrow();
         
-        if (teacher.getRole() != Role.TEACHER && teacher.getRole() != Role.ADMIN) {
+        if (admin.getRole() != Role.ADMIN) {
             return "redirect:/dashboard?error=unauthorized";
         }
 
-        Course course = new Course(name, description, maxStudents, teacher);
-        courseService.createCourse(course, teacher);
+        Course course = new Course(name, description, maxStudents, null);
+        courseService.createCourse(course, null);
         
         return "redirect:/dashboard?courseAdded=true";
     }
-}
+
+    @PostMapping("/dashboard/course/claim")
+    public String claimCourse(@RequestParam Long courseId,
+                              @org.springframework.security.core.annotation.AuthenticationPrincipal com.studentportal.portal.security.CustomUserDetails userDetails) {
+        if (userDetails == null) {
+            return "redirect:/login";
+        }
+        Long currentUserId = userDetails.getId();
+        User teacher = userService.findById(currentUserId).orElseThrow();
+        if (teacher.getRole() != Role.TEACHER && teacher.getRole() != Role.ADMIN) {
+            return "redirect:/dashboard?error=unauthorized";
+        }
+        courseService.assignTeacher(courseId, teacher);
+        return "redirect:/dashboard?courseClaimed=true";
+    }
+
+    }
