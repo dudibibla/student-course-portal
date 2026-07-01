@@ -69,4 +69,26 @@ public class CourseController {
         courseReviewService.addReview(id, student, content);
         return "redirect:/courses/" + id + "?reviewAdded=true";
     }
+
+    @PostMapping("/courses/{id}/grades/{itemId}")
+    public String updateGrade(@PathVariable Long id, 
+                              @PathVariable Long itemId,
+                              @RequestParam Integer grade,
+                              @org.springframework.security.core.annotation.AuthenticationPrincipal com.studentportal.portal.security.CustomUserDetails userDetails) {
+        if (userDetails == null) {
+            return "redirect:/login";
+        }
+
+        User user = userService.findById(userDetails.getId()).orElse(null);
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            courseService.updateRegistrationItemGrade(itemId, grade, user);
+            return "redirect:/courses/" + id + "?gradeUpdated=true";
+        } catch (Exception e) {
+            return "redirect:/courses/" + id + "?error=" + e.getMessage();
+        }
+    }
 }

@@ -18,6 +18,9 @@ public class RegistrationItem {
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
+    @Column
+    private Integer grade;
+
     // Constructors
     public RegistrationItem() {}
 
@@ -35,4 +38,7 @@ public class RegistrationItem {
 
     public Course getCourse() { return course; }
     public void setCourse(Course course) { this.course = course; }
+
+    public Integer getGrade() { return grade; }
+    public void setGrade(Integer grade) { this.grade = grade; }
 }
