@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.OptionalDouble;
 
 @Service
 public class RegistrationService {
@@ -39,7 +40,9 @@ public class RegistrationService {
         Registration registration = new Registration(student);
 
         for (Long courseId : courseIds) {
-            Course course = courseRepository.findById(courseId)
+            // Pessimistic lock: the course row stays locked until the transaction
+            // commits, so concurrent checkouts cannot both pass the capacity check
+            Course course = courseRepository.findByIdForUpdate(courseId)
                     .orElseThrow(() -> new IllegalArgumentException("Course not found: " + courseId));
 
             // Verify capacity
@@ -67,6 +70,26 @@ public class RegistrationService {
 
     @Transactional(readOnly = true)
     public List<Registration> getAllRegistrations() {
-        return registrationRepository.findAll();
+        return registrationRepository.findAllWithStudentAndItems();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Registration> getRegistrationsForStudent(Long studentId) {
+        return registrationRepository.findByStudentIdWithItems(studentId);
+    }
+
+    /**
+     * Average of all grades the student has received across registrations,
+     * or null when no grades have been assigned yet.
+     */
+    @Transactional(readOnly = true)
+    public Double calculateAverageGrade(Long studentId) {
+        OptionalDouble average = registrationRepository.findByStudentIdWithItems(studentId).stream()
+                .flatMap(reg -> reg.getItems().stream())
+                .map(RegistrationItem::getGrade)
+                .filter(grade -> grade != null)
+                .mapToInt(Integer::intValue)
+                .average();
+        return average.isPresent() ? average.getAsDouble() : null;
     }
 }

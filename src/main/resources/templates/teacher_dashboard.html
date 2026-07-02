@@ -17,12 +17,17 @@
         </div>
     </nav>
 
-    <div class="container" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
-        
+    <div class="container two-col-grid">
+
         <!-- Dashboard Section -->
         <div>
-            <h1 style="color: var(--primary-color);">Welcome, Teacher <span th:text="${user.name}">Teacher</span>!</h1>
-            
+            <h1 style="color: var(--primary-color);">Welcome, <span th:text="${user.role.name() == 'ADMIN' ? 'Admin' : 'Teacher'}">Teacher</span> <span th:text="${user.name}">Name</span>!</h1>
+
+            <div th:if="${param.courseAdded}" class="alert alert-success">Course created successfully!</div>
+            <div th:if="${param.courseClaimed}" class="alert alert-success">Course claimed successfully!</div>
+            <div th:if="${param.error != null and param.error[0] == 'invalidCourse'}" class="alert alert-danger">Could not create course - please check the values you entered.</div>
+            <div th:if="${param.error != null and param.error[0] == 'courseNotFound'}" class="alert alert-danger">The requested course was not found.</div>
+
             <div class="card mt-2 mb-4" th:if="${user.role.name() == 'ADMIN'}">
                 <h3 style="color: var(--primary-color);">Create New Course</h3>
                 <form th:action="@{/dashboard/course/add}" method="post">
@@ -111,8 +116,8 @@
                 <div th:if="${!allRegistrations.empty}">
                     <ul style="list-style-type: none; padding: 0;">
                         <li th:each="reg : ${allRegistrations}" style="margin-bottom: 0.5rem; padding: 0.5rem; background-color: var(--bg-color); border-radius: 4px;">
-                            <strong>Student:</strong> <span th:text="${reg.user.name}"></span>
-                            | <strong>Date:</strong> <span th:text="${reg.registrationDate}"></span>
+                            <strong>Student:</strong> <span th:text="${reg.student.name}"></span>
+                            | <strong>Date:</strong> <span th:text="${#temporals.format(reg.registrationDate, 'dd/MM/yyyy HH:mm')}"></span>
                             | <strong>Courses:</strong> <span th:text="${reg.items.size()}"></span>
                         </li>
                     </ul>
@@ -129,7 +134,7 @@
                     <div th:each="msg : ${messages}" th:classappend="${msg.sender.id == user.id ? 'message mine' : 'message other'}">
                         <strong th:text="${msg.sender.name} + ': '">Sender: </strong>
                         <span th:text="${msg.content}">Message Content</span>
-                        <div style="font-size: 0.75rem; text-align: right; margin-top: 0.2rem; opacity: 0.7;" th:text="${msg.timestamp}">Time</div>
+                        <div style="font-size: 0.75rem; text-align: right; margin-top: 0.2rem; opacity: 0.7;" th:text="${#temporals.format(msg.timestamp, 'dd/MM HH:mm')}">Time</div>
                     </div>
                 </div>
                 <div class="chat-input">
@@ -143,27 +148,6 @@
     </div>
 
     <script th:src="@{/js/theme.js}"></script>
-    <script>
-        // Auto-scroll to bottom of chat
-        const chatMessages = document.getElementById('chat-messages');
-        if(chatMessages) {
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-        
-        // Simple polling to refresh chat every 5 seconds
-        setInterval(() => {
-            fetch(window.location.href)
-                .then(response => response.text())
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    const newChat = doc.getElementById('chat-messages');
-                    if(newChat && newChat.innerHTML !== chatMessages.innerHTML) {
-                        chatMessages.innerHTML = newChat.innerHTML;
-                        chatMessages.scrollTop = chatMessages.scrollHeight;
-                    }
-                });
-        }, 5000);
-    </script>
+    <script th:src="@{/js/chat.js}"></script>
 </body>
 </html>

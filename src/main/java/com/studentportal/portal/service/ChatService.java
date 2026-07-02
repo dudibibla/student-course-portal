@@ -39,19 +39,11 @@ public class ChatService {
 
     @Transactional(readOnly = true)
     public List<ChatMessage> getGlobalMessages() {
-        return chatMessageRepository.findByCourseIsNullAndReceiverIsNullOrderByTimestampAsc();
+        return chatMessageRepository.findGlobalMessages();
     }
 
     @Transactional(readOnly = true)
     public List<ChatMessage> getCourseMessages(Course course) {
-        return chatMessageRepository.findByCourseOrderByTimestampAsc(course);
-    }
-
-    @Transactional(readOnly = true)
-    public List<ChatMessage> getDirectMessages(User user1, User user2) {
-        // We might need to add a custom query in ChatMessageRepository for this
-        // For now, this assumes we have or will have a way to find DMs between two users.
-        // Assuming ChatMessageRepository will be updated if needed.
-        return chatMessageRepository.findBySenderAndReceiverOrReceiverAndSenderOrderByTimestampAsc(user1, user2, user1, user2);
+        return chatMessageRepository.findCourseMessages(course);
     }
 }

@@ -2,6 +2,7 @@ package com.studentportal.portal.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -11,6 +12,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean
@@ -23,7 +25,11 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/login", "/register", "/css/**", "/js/**", "/images/**").permitAll()
-                .requestMatchers("/dashboard/**", "/courses/**", "/cart/**", "/chat/**").authenticated()
+                // Role-based rules (defense in depth, backed by @PreAuthorize on controllers)
+                .requestMatchers("/dashboard/course/add").hasRole("ADMIN")
+                .requestMatchers("/dashboard/course/claim").hasAnyRole("TEACHER", "ADMIN")
+                .requestMatchers("/cart/**").hasRole("STUDENT")
+                .requestMatchers("/dashboard/**", "/courses/**", "/chat/**").authenticated()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

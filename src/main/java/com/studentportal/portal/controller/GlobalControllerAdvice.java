@@ -1,37 +1,45 @@
 package com.studentportal.portal.controller;
 
 import com.studentportal.portal.entity.Course;
-import com.studentportal.portal.service.CourseService;
+import com.studentportal.portal.entity.User;
+import com.studentportal.portal.security.CustomUserDetails;
+import com.studentportal.portal.service.CartService;
+import com.studentportal.portal.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @ControllerAdvice
 public class GlobalControllerAdvice {
 
-    private final CourseService courseService;
+    private final CartService cartService;
+    private final UserService userService;
 
     @Autowired
-    public GlobalControllerAdvice(CourseService courseService) {
-        this.courseService = courseService;
+    public GlobalControllerAdvice(CartService cartService, UserService userService) {
+        this.cartService = cartService;
+        this.userService = userService;
     }
 
     @ModelAttribute("cartCourses")
     public List<Course> getCartCourses(HttpSession session) {
-        List<Long> cartIds = (List<Long>) session.getAttribute("courseCart");
-        List<Course> cartCourses = new ArrayList<>();
+        return cartService.getCartCourses(session);
+    }
 
-        if (cartIds != null && !cartIds.isEmpty()) {
-            for (Long courseId : cartIds) {
-                Optional<Course> courseOpt = courseService.getCourseById(courseId);
-                courseOpt.ifPresent(cartCourses::add);
-            }
+    @ModelAttribute("cartSize")
+    public int getCartSize(HttpSession session) {
+        return cartService.getCartIds(session).size();
+    }
+
+    @ModelAttribute("currentUser")
+    public User getCurrentUser(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        if (userDetails == null) {
+            return null;
         }
-        return cartCourses;
+        return userService.findById(userDetails.getId()).orElse(null);
     }
 }

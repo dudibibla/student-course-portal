@@ -3,11 +3,14 @@ package com.studentportal.portal.controller;
 import com.studentportal.portal.entity.Course;
 import com.studentportal.portal.entity.Role;
 import com.studentportal.portal.entity.User;
-import com.studentportal.portal.service.CourseService;
-import com.studentportal.portal.service.UserService;
+import com.studentportal.portal.security.CustomUserDetails;
 import com.studentportal.portal.service.ChatService;
+import com.studentportal.portal.service.CourseService;
 import com.studentportal.portal.service.RegistrationService;
+import com.studentportal.portal.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,13 +34,12 @@ public class DashboardController {
     }
 
     @GetMapping("/dashboard")
-    public String dashboard(Model model, @org.springframework.security.core.annotation.AuthenticationPrincipal com.studentportal.portal.security.CustomUserDetails userDetails) {
+    public String dashboard(Model model, @AuthenticationPrincipal CustomUserDetails userDetails) {
         if (userDetails == null) {
             return "redirect:/login";
         }
-        Long currentUserId = userDetails.getId(); 
-        
-        User user = userService.findById(currentUserId).orElse(null);
+
+        User user = userService.findById(userDetails.getId()).orElse(null);
         if (user == null) {
             return "redirect:/login";
         }
@@ -46,6 +48,8 @@ public class DashboardController {
         model.addAttribute("messages", chatService.getGlobalMessages());
 
         if (user.getRole() == Role.STUDENT) {
+            model.addAttribute("registrations", registrationService.getRegistrationsForStudent(user.getId()));
+            model.addAttribute("averageGrade", registrationService.calculateAverageGrade(user.getId()));
             return "student_dashboard";
         } else if (user.getRole() == Role.TEACHER || user.getRole() == Role.ADMIN) {
             model.addAttribute("allCourses", courseService.getAllCourses());
@@ -56,42 +60,30 @@ public class DashboardController {
         return "redirect:/";
     }
 
-    // Admin specific action - add new course
     @PostMapping("/dashboard/course/add")
-    public String addCourse(@RequestParam String name, 
-                            @RequestParam String description, 
-                            @RequestParam int maxStudents,
-                            @org.springframework.security.core.annotation.AuthenticationPrincipal com.studentportal.portal.security.CustomUserDetails userDetails) {
-        
-        if (userDetails == null) {
-            return "redirect:/login";
+    @PreAuthorize("hasRole('ADMIN')")
+    public String addCourse(@RequestParam String name,
+                            @RequestParam String description,
+                            @RequestParam int maxStudents) {
+        try {
+            Course course = new Course(name, description, maxStudents, null);
+            courseService.createCourse(course, null);
+            return "redirect:/dashboard?courseAdded=true";
+        } catch (IllegalArgumentException e) {
+            return "redirect:/dashboard?error=invalidCourse";
         }
-        Long currentUserId = userDetails.getId(); 
-        User admin = userService.findById(currentUserId).orElseThrow();
-        
-        if (admin.getRole() != Role.ADMIN) {
-            return "redirect:/dashboard?error=unauthorized";
-        }
-
-        Course course = new Course(name, description, maxStudents, null);
-        courseService.createCourse(course, null);
-        
-        return "redirect:/dashboard?courseAdded=true";
     }
 
     @PostMapping("/dashboard/course/claim")
+    @PreAuthorize("hasAnyRole('TEACHER', 'ADMIN')")
     public String claimCourse(@RequestParam Long courseId,
-                              @org.springframework.security.core.annotation.AuthenticationPrincipal com.studentportal.portal.security.CustomUserDetails userDetails) {
-        if (userDetails == null) {
-            return "redirect:/login";
+                              @AuthenticationPrincipal CustomUserDetails userDetails) {
+        User teacher = userService.findById(userDetails.getId()).orElseThrow();
+        try {
+            courseService.assignTeacher(courseId, teacher);
+            return "redirect:/dashboard?courseClaimed=true";
+        } catch (IllegalArgumentException e) {
+            return "redirect:/dashboard?error=courseNotFound";
         }
-        Long currentUserId = userDetails.getId();
-        User teacher = userService.findById(currentUserId).orElseThrow();
-        if (teacher.getRole() != Role.TEACHER && teacher.getRole() != Role.ADMIN) {
-            return "redirect:/dashboard?error=unauthorized";
-        }
-        courseService.assignTeacher(courseId, teacher);
-        return "redirect:/dashboard?courseClaimed=true";
     }
-
-    }
+}

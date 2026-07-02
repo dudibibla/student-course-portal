@@ -11,7 +11,7 @@
         <a href="/" class="navbar-brand">StudentPortal</a>
         <div class="navbar-nav">
             <a href="/courses" class="nav-link">Catalog</a>
-            <a href="/cart" class="nav-link">Cart (<span th:text="${cartSize ?: 0}"></span>)</a>
+            <a href="/cart" class="nav-link" th:if="${currentUser == null or currentUser.role.name() == 'STUDENT'}">Cart (<span th:text="${cartSize ?: 0}"></span>)</a>
             <a href="/dashboard" class="nav-link">Dashboard</a>
             <button id="theme-toggle" class="theme-toggle">🌙</button>
             <form th:action="@{/logout}" method="post" style="display:inline;">
@@ -20,16 +20,31 @@
         </div>
     </nav>
 
-    <div class="container" style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
-        
+    <div class="container two-col-grid">
+
         <!-- Left Column: Course Info and Reviews -->
         <div>
             <a href="/courses" style="color: var(--primary-color); text-decoration: none; margin-bottom: 1rem; display: inline-block;">&larr; Back to Catalog</a>
-            
+
             <div th:if="${param.reviewAdded}" class="alert alert-success">
                 Review added successfully!
             </div>
-            
+            <div th:if="${param.gradeUpdated}" class="alert alert-success">
+                Grade saved successfully!
+            </div>
+            <div th:if="${param.error != null and param.error[0] == 'invalidGrade'}" class="alert alert-danger">
+                Grade must be a number between 0 and 100.
+            </div>
+            <div th:if="${param.error != null and param.error[0] == 'invalidAssignment'}" class="alert alert-danger">
+                Could not add the assignment - please check the title and due date.
+            </div>
+            <div th:if="${param.error != null and param.error[0] == 'notAuthorized'}" class="alert alert-danger">
+                You are not authorized to perform this action for this course.
+            </div>
+            <div th:if="${param.error != null and param.error[0] == 'emptyReview'}" class="alert alert-danger">
+                Review content cannot be empty.
+            </div>
+
             <div class="card mb-4">
                 <h1 th:text="${course.name}" style="color: var(--primary-color);">Course Name</h1>
                 <p th:text="${course.description}" style="font-size: 1.1rem; color: var(--text-muted);"></p>
@@ -39,7 +54,7 @@
                 <div style="display: flex; gap: 2rem; margin-bottom: 1.5rem;">
                     <div>
                         <strong style="color: var(--text-color);">Teacher:</strong>
-                        <div th:text="${course.teacher.name}">Teacher Name</div>
+                        <div th:text="${course.teacher != null ? course.teacher.name : 'Unassigned'}">Teacher Name</div>
                     </div>
                     <div>
                         <strong style="color: var(--text-color);">Available Spots:</strong>
@@ -47,7 +62,7 @@
                     </div>
                 </div>
 
-                <form th:action="@{/cart/add}" method="post">
+                <form th:action="@{/cart/add}" method="post" th:if="${user == null or user.role.name() == 'STUDENT'}">
                     <input type="hidden" name="courseId" th:value="${course.id}">
                     <button type="submit" class="btn btn-success" th:disabled="${availableSpots <= 0}">
                         <span th:text="${availableSpots > 0 ? 'Add to Cart' : 'Course Full'}"></span>
@@ -193,27 +208,6 @@
     </div>
 
     <script th:src="@{/js/theme.js}"></script>
-    <script>
-        // Auto-scroll to bottom of chat
-        const chatMessages = document.getElementById('chat-messages');
-        if(chatMessages) {
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-        
-        // Polling to refresh chat every 5 seconds
-        setInterval(() => {
-            fetch(window.location.href)
-                .then(response => response.text())
-                .then(html => {
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
-                    const newChat = doc.getElementById('chat-messages');
-                    if(newChat && newChat.innerHTML !== chatMessages.innerHTML) {
-                        chatMessages.innerHTML = newChat.innerHTML;
-                        chatMessages.scrollTop = chatMessages.scrollHeight;
-                    }
-                });
-        }, 5000);
-    </script>
+    <script th:src="@{/js/chat.js}"></script>
 </body>
 </html>

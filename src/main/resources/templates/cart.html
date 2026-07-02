@@ -41,7 +41,7 @@
                 <tbody>
                     <tr th:each="course : ${cartCourses}" style="border-bottom: 1px solid var(--border-color);">
                         <td style="padding: 1rem;" th:text="${course.name}">Course Name</td>
-                        <td style="padding: 1rem;" th:text="${course.teacher.name}">Teacher</td>
+                        <td style="padding: 1rem;" th:text="${course.teacher != null ? course.teacher.name : 'Unassigned'}">Teacher</td>
                         <td style="padding: 1rem; text-align: right;">
                             <form th:action="@{/cart/remove}" method="post">
                                 <input type="hidden" name="courseId" th:value="${course.id}">

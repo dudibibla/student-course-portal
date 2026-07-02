@@ -1,11 +1,14 @@
 package com.studentportal.portal.controller;
 
+import com.studentportal.portal.dto.RegisterForm;
 import com.studentportal.portal.entity.Role;
 import com.studentportal.portal.entity.User;
 import com.studentportal.portal.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,17 +30,21 @@ public class AuthController {
 
     @GetMapping("/register")
     public String registerPage(Model model) {
-        model.addAttribute("user", new User());
+        model.addAttribute("user", new RegisterForm());
         return "register";
     }
 
     @PostMapping("/register")
-    public String registerUser(@ModelAttribute User user, Model model) {
+    public String registerUser(@Valid @ModelAttribute("user") RegisterForm form,
+                               BindingResult bindingResult,
+                               Model model) {
+        if (bindingResult.hasErrors()) {
+            return "register";
+        }
         try {
-            // Force role to STUDENT for self-registration for now
-            if (user.getRole() == null) {
-                user.setRole(Role.STUDENT);
-            }
+            // Self-registration always creates a STUDENT. Elevated roles
+            // (TEACHER/ADMIN) can only be granted by an administrator.
+            User user = new User(form.getName(), form.getEmail(), form.getPassword(), Role.STUDENT);
             userService.registerUser(user);
             return "redirect:/login?registered=true";
         } catch (IllegalArgumentException e) {

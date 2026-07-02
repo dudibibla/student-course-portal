@@ -11,7 +11,7 @@
         <a href="/" class="navbar-brand">StudentPortal</a>
         <div class="navbar-nav">
             <a href="/courses" class="nav-link">Catalog</a>
-            <a href="/cart" class="nav-link">Cart (<span th:text="${cartSize ?: 0}"></span>)</a>
+            <a href="/cart" class="nav-link" th:if="${currentUser == null or currentUser.role.name() == 'STUDENT'}">Cart (<span th:text="${cartSize ?: 0}"></span>)</a>
             <a href="/dashboard" class="nav-link">Dashboard</a>
             <button id="theme-toggle" class="theme-toggle">🌙</button>
             <form th:action="@{/logout}" method="post" style="display:inline;">
@@ -23,7 +23,7 @@
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-2">
             <h1 style="color: var(--primary-color);">Course Catalog</h1>
-            <a href="/cart" class="btn btn-success">View Cart</a>
+            <a href="/cart" class="btn btn-success" th:if="${currentUser == null or currentUser.role.name() == 'STUDENT'}">View Cart</a>
         </div>
         
         <div th:if="${param.added}" class="alert alert-success">
@@ -36,12 +36,12 @@
                     <h3 class="course-title" th:text="${course.name}">Course Name</h3>
                     <p th:text="${course.description}">Description</p>
                     <p><strong>Capacity:</strong> <span th:text="${course.maxStudents}"></span></p>
-                    <p><strong>Teacher:</strong> <span th:text="${course.teacher.name}"></span></p>
+                    <p><strong>Teacher:</strong> <span th:text="${course.teacher != null ? course.teacher.name : 'Unassigned'}"></span></p>
                 </div>
                 
                 <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
                     <a th:href="@{/courses/{id}(id=${course.id})}" class="btn" style="flex: 1; background-color: rgba(148, 163, 184, 0.2); color: var(--text-color);">View Details</a>
-                    <form th:action="@{/cart/add}" method="post" style="flex: 1; margin: 0;">
+                    <form th:action="@{/cart/add}" method="post" style="flex: 1; margin: 0;" th:if="${currentUser == null or currentUser.role.name() == 'STUDENT'}">
                         <input type="hidden" name="courseId" th:value="${course.id}">
                         <button type="submit" class="btn btn-primary" style="width: 100%;">Add to Cart</button>
                     </form>

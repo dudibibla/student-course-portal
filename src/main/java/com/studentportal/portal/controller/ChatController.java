@@ -2,10 +2,12 @@ package com.studentportal.portal.controller;
 
 import com.studentportal.portal.entity.Course;
 import com.studentportal.portal.entity.User;
+import com.studentportal.portal.security.CustomUserDetails;
 import com.studentportal.portal.service.ChatService;
 import com.studentportal.portal.service.CourseService;
 import com.studentportal.portal.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,13 +30,12 @@ public class ChatController {
     public String sendMessage(@RequestParam String content,
                               @RequestParam(required = false) Long courseId,
                               @RequestParam(required = false) Long receiverId,
-                              @org.springframework.security.core.annotation.AuthenticationPrincipal com.studentportal.portal.security.CustomUserDetails userDetails) {
-        
+                              @AuthenticationPrincipal CustomUserDetails userDetails) {
+
         if (userDetails == null) {
             return "redirect:/login";
         }
-        Long currentUserId = userDetails.getId(); 
-        User sender = userService.findById(currentUserId).orElseThrow();
+        User sender = userService.findById(userDetails.getId()).orElseThrow();
 
         Course course = null;
         if (courseId != null) {
@@ -46,7 +47,11 @@ public class ChatController {
             receiver = userService.findById(receiverId).orElse(null);
         }
 
-        chatService.sendMessage(sender, receiver, course, content);
+        try {
+            chatService.sendMessage(sender, receiver, course, content);
+        } catch (IllegalArgumentException e) {
+            // Empty message - just return to the page without crashing
+        }
 
         if (courseId != null) {
             return "redirect:/courses/" + courseId;
